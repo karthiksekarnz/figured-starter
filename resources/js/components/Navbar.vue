@@ -1,0 +1,160 @@
+<script>
+    import ApiService from "../services/api.service";
+    import API_ENDPOINTS from "../helpers/api.endpoints";
+    import { mapGetters, mapMutations } from 'vuex';
+    import { TokenService } from "../services/token.service"
+
+    export default {
+        name: 'Navbar',
+        data() {
+            return {
+                saving: false,
+                loginForm: {
+                    email: null,
+                    password: null
+                },
+
+                signupForm: {
+                    name: null,
+                    email: null,
+                    password: null,
+                    password_confirmation: null
+                }
+            }
+        },
+
+        computed: {
+            ...mapGetters({
+                user: 'user/get',
+                isLoggedIn: 'user/isLoggedIn'
+            })
+        },
+
+        methods: {
+            ...mapMutations({
+                setUser: 'user/set',
+                setLoggedIn: 'user/setLoggedIn'
+            }),
+
+            login() {
+                ApiService.post(API_ENDPOINTS.login, this.loginForm)
+                    .then(async response => {
+                        this.$bvModal.hide('loginModal');
+
+                        let payload = response.data;
+                        TokenService.setAccessToken(payload.token.access_token);
+
+                        this.setUser(payload.user);
+                        this.setLoggedIn(true);
+
+                        this.$router.push({name: 'PostsList'});
+                    })
+                    .catch(error => {
+                        console.log(error)
+                    });
+            },
+
+            signup() {
+                ApiService.post(API_ENDPOINTS.signup, this.signupForm)
+                    .then(async response => {
+                        this.$bvModal.hide('signupModal');
+                        let payload = response.data;
+                        TokenService.setAccessToken(payload.token.access_token);
+                        this.setUser(payload.user);
+                        this.setLoggedIn(true);
+
+                        this.$router.push({name: 'PostsList'});
+                    })
+                    .catch(error => {
+                        console.log(error)
+                    });
+            },
+
+            logout() {
+                ApiService.post(API_ENDPOINTS.logout, {})
+                    .then(response => {
+                        this.reset();
+                        this.$router.push({name: 'Welcome'})
+                    })
+                    .catch(error => {
+                        console.log(error)
+                    });
+            },
+
+            reset() {
+                TokenService.removeTokens();
+                this.setUser(null);
+                this.setLoggedIn(null);
+
+                this.$router.push({ name: 'Welcome'});
+            }
+        }
+    }
+</script>
+<template>
+    <nav class="navbar top-navbar fixed-top navbar-expand-md navbar navbar-light">
+        <div class="container">
+            <div class="navbar-brand">
+                <img src="https://laravel.com/img/logomark.min.svg" />
+            </div>
+            <div class="pull-right">
+                <div v-if="isLoggedIn">
+                    <b-button class="btn btn-primary" @click="logout">Logout</b-button>
+                </div>
+                <div v-if="!isLoggedIn">
+                    <b-button class="btn btn-primary" v-b-modal.loginModal :disabled="saving">Log In</b-button>
+                    <b-button class="btn btn-primary" v-b-modal.signupModal :disabled="saving">Sign up</b-button>
+                </div>
+
+
+                <b-modal id="loginModal" title="Login" hide-footer>
+                    <b-form @submit.prevent="login">
+                        <div class="form-group">
+                            <label>Email</label>
+                            <b-form-input class="form-control" type="email" v-model="loginForm.email"></b-form-input>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <b-form-input class="form-control" type="password" v-model="loginForm.password"></b-form-input>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-primary btn-block" type="submit">Login</button>
+                        </div>
+                    </b-form>
+                </b-modal>
+
+                <b-modal id="signupModal" title="Sign up" hide-footer>
+                    <b-form @submit.prevent="signup">
+                        <div class="form-group">
+                            <label>Name</label>
+                            <b-form-input class="form-control" type="text" v-model="signupForm.name"></b-form-input>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <b-form-input class="form-control" type="email" v-model="signupForm.email"></b-form-input>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <b-form-input v-model="signupForm.password" class="form-control" type="password"></b-form-input>
+                        </div>
+                        <div class="form-group">
+                            <label>Confirm Password</label>
+                            <b-form-input v-model="signupForm.password_confirmation" class="form-control" type="password"></b-form-input>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-primary btn-block" type="submit">Sign up</button>
+                        </div>
+                    </b-form>
+                </b-modal>
+            </div>
+        </div>
+    </nav>
+</template>
+<style scoped>
+    .top-navbar {
+        padding: 0px 50px;
+        height: 72px;
+        color: #121212;
+        box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
+    }
+</style>

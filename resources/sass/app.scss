@@ -6,3 +6,7 @@
 
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
+@import "~bootstrap-vue/dist/bootstrap-vue.css";
+@import "~medium-editor/src/sass/medium-editor";
+@import "~medium-editor/src/sass/themes/default";
+@import "style";
