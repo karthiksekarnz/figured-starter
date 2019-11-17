@@ -1,6 +1,6 @@
 const API_ENDPOINTS = {
     posts: '/api/posts',
-    editPost: '/api/post/:id',
+    singlePost: '/api/post/:id',
     post: '/api/post/:slug',
     createPost: '/api/post',
     login: '/api/login',

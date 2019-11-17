@@ -18,11 +18,12 @@
         },
 
         mounted() {
+            this.loading = true;
+
             if (!this.user) {
                 this.$router.push({ name: "Welcome"});
             }
 
-            this.loading = true;
             let slug = this.$route.params.slug;
 
             ApiService.get(API_ENDPOINTS.post.replace(':slug', slug))
@@ -33,6 +34,7 @@
                     this.post = post;
 
                     this.loading = false;
+
                 })
                 .catch(error => {
                     this.loading = false;
@@ -47,14 +49,27 @@
         },
 
         methods: {
-            onEdit (operation) {
-                this.content = operation.api.origElements.innerHTML
+            onEdit ({ quill, html, text}) {
+                this.content = html;
+            },
+
+            onDelete() {
+                this.loading = true;
+
+                ApiService.delete(API_ENDPOINTS.singlePost.replace(':id', this.post._id))
+                    .then(() => {
+                        this.loading = false;
+                        this.$router.push({ name: 'PostsList'});
+                    })
+                    .catch(error => {
+                        this.loading = false
+                    });
             },
 
             save() {
                 this.saving = true;
 
-                ApiService.put(API_ENDPOINTS.editPost.replace(':id', this.post._id) , {
+                ApiService.put(API_ENDPOINTS.singlePost.replace(':id', this.post._id) , {
                     title: this.title,
                     content: this.content
                 }).then(() => {
@@ -80,10 +95,13 @@
                 <b-form-input placeholder="Enter post title" v-model="title" class="mt-2 mb-4"></b-form-input>
             </div>
             <h2 v-else>{{ title }}</h2>
-            <medium-editor :options="options" v-on:edit="onEdit" :text="content" />
+            <quill-editor :content="content" :options="options" @change="onEdit($event)" v-if="isAdmin"></quill-editor>
+            <div v-html="content" v-else></div>
             <nav class="navbar bottom-nav bg-dark fixed-bottom navbar-expand-md navbar-light" v-if="isAdmin">
                 <div class="container px-0 py-2">
                     <div class="col-12 p-0 ">
+                        <button type="button" class="btn btn-danger float-left mr-2" @click="onDelete($event)">Delete</button>
+
                         <router-link :to="{ name: 'PostsList'}" class="btn btn-light float-right">Cancel</router-link>
                         <button type="submit" class="btn btn-primary float-right mr-2">Save</button>
                     </div>

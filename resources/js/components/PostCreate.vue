@@ -25,9 +25,10 @@
                 isAdmin: 'user/isAdmin'
             })
         },
+
         methods: {
-            onEdit (operation) {
-                this.content = operation.api.origElements.innerHTML
+            onEdit ({ quill, html, text }) {
+                this.content = html
             },
 
             save() {
@@ -52,11 +53,12 @@
 <template>
     <div class="container">
         <h2>Create Post</h2>
-        <b-spinner variant="primary" type="grow" label="Spinning" v-if="saving"></b-spinner>
+        <div class="text-center p-5 mt-2" v-if="saving">
+            <b-spinner variant="primary" type="grow" label="Spinning"></b-spinner>
+        </div>
         <b-form @submit.prevent="save" v-else>
             <b-form-input placeholder="Enter post title" v-model="title" class="mt-2 mb-4"></b-form-input>
-
-            <medium-editor :text="content" :options="options" v-on:edit="onEdit" />
+            <quill-editor :content="content" :options="options" @change="onEdit($event)"></quill-editor>
             <nav class="navbar bottom-nav bg-dark fixed-bottom navbar-expand-md navbar-light">
                 <div class="container px-0 py-2">
                     <div class="col-12 p-0 ">

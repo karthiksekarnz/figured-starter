@@ -15,7 +15,6 @@ export default {
         set(state, user) {
             state.user = user;
             state.isAdmin = (!_.isEmpty(user) && !_.isEmpty(_.find(user.roles, { name: 'Admin'})));
-            console.log(_.find(user.roles, { name: 'Admin'}));
         },
         setLoggedIn(state, status) {
             state.loggedIn = status

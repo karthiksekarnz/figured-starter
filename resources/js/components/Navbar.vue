@@ -119,7 +119,7 @@
                             <b-form-input class="form-control" type="password" v-model="loginForm.password"></b-form-input>
                         </div>
                         <div class="form-group">
-                            <button class="btn btn-primary btn-block" type="submit">Login</button>
+                            <button class="btn btn-primary btn-block" type="submit" :disabled="saving">Login</button>
                         </div>
                     </b-form>
                 </b-modal>
@@ -143,7 +143,7 @@
                             <b-form-input v-model="signupForm.password_confirmation" class="form-control" type="password"></b-form-input>
                         </div>
                         <div class="form-group">
-                            <button class="btn btn-primary btn-block" type="submit">Sign up</button>
+                            <button class="btn btn-primary btn-block" type="submit" :disabled="saving">Sign up</button>
                         </div>
                     </b-form>
                 </b-modal>
