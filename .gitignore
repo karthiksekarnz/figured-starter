@@ -2,6 +2,14 @@
 /public/hot
 /public/storage
 /storage/*.key
+/storage/debugbar/
+/public/js/*.js
+/public/js/*.map
+/public/css/*.css
+/public/css/*.map
+/public/mix-manifest.json
+/public/images/
+.DS_STORE
 /vendor
 .env
 .phpunit.result.cache
