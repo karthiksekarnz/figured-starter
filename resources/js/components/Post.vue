@@ -2,6 +2,7 @@
 <script>
     import ApiService from "../services/api.service";
     import API_ENDPOINTS from "../helpers/api.endpoints";
+    import { mapGetters } from 'vuex';
 
     export default {
         name: "Post",
@@ -17,6 +18,10 @@
         },
 
         mounted() {
+            if (!this.user) {
+                this.$router.push({ name: "Welcome"});
+            }
+
             this.loading = true;
             let slug = this.$route.params.slug;
 
@@ -32,6 +37,13 @@
                 .catch(error => {
                     this.loading = false;
                 });
+        },
+
+        computed: {
+            ...mapGetters({
+                user: 'user/get',
+                isAdmin: 'user/isAdmin'
+            })
         },
 
         methods: {
@@ -58,11 +70,18 @@
 
 <template>
     <div class="container">
-        <b-spinner variant="primary" type="grow" label="Spinning" v-if="loading || saving"></b-spinner>
+        <div class="text-center p-5" v-if="loading || saving">
+            <b-spinner variant="primary" type="grow" label="Spinning"></b-spinner>
+        </div>
+
         <b-form @submit.prevent="save" v-else>
-            <h2>{{ title }}</h2>
+            <div v-if="isAdmin">
+                <h5>Title</h5>
+                <b-form-input placeholder="Enter post title" v-model="title" class="mt-2 mb-4"></b-form-input>
+            </div>
+            <h2 v-else>{{ title }}</h2>
             <medium-editor :options="options" v-on:edit="onEdit" :text="content" />
-            <nav class="navbar bottom-nav bg-dark fixed-bottom navbar-expand-md navbar-light">
+            <nav class="navbar bottom-nav bg-dark fixed-bottom navbar-expand-md navbar-light" v-if="isAdmin">
                 <div class="container px-0 py-2">
                     <div class="col-12 p-0 ">
                         <router-link :to="{ name: 'PostsList'}" class="btn btn-light float-right">Cancel</router-link>

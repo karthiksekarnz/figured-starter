@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import API_ENDPOINTS from '../helpers/api.endpoints';
 import ApiService from '../services/api.service';
 
@@ -6,12 +7,15 @@ export default {
 
     state: {
         user: null,
-        loggedIn: null
+        loggedIn: null,
+        isAdmin: null
     },
 
     mutations: {
         set(state, user) {
             state.user = user;
+            state.isAdmin = (!_.isEmpty(user) && !_.isEmpty(_.find(user.roles, { name: 'Admin'})));
+            console.log(_.find(user.roles, { name: 'Admin'}));
         },
         setLoggedIn(state, status) {
             state.loggedIn = status
@@ -20,7 +24,8 @@ export default {
 
     getters: {
         get: state => state.user,
-        isLoggedIn: state => state.loggedIn
+        isLoggedIn: state => state.loggedIn,
+        isAdmin:  state => state.isAdmin
     },
 
     actions: {

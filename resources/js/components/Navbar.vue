@@ -83,10 +83,9 @@
 
             reset() {
                 TokenService.removeTokens();
+                this.$router.push({ name: 'Welcome'});
                 this.setUser(null);
                 this.setLoggedIn(null);
-
-                this.$router.push({ name: 'Welcome'});
             }
         }
     }
@@ -94,11 +93,13 @@
 <template>
     <nav class="navbar top-navbar fixed-top navbar-expand-md navbar navbar-light">
         <div class="container">
-            <div class="navbar-brand">
-                <img src="https://laravel.com/img/logomark.min.svg" />
+            <div class="navbar-brand mr-3">
+                <router-link :to="'/'"><img src="https://laravel.com/img/logomark.min.svg" /></router-link>
             </div>
             <div class="pull-right">
                 <div v-if="isLoggedIn">
+                    <router-link :to="{ name: 'PostsList'}" class="mr-5">Posts</router-link>
+                    <span class="mr-2">{{ user.name }}</span>
                     <b-button class="btn btn-primary" @click="logout">Logout</b-button>
                 </div>
                 <div v-if="!isLoggedIn">
@@ -152,8 +153,9 @@
 </template>
 <style scoped>
     .top-navbar {
-        padding: 0px 50px;
+        padding: 0 50px;
         height: 72px;
+        background: #ffffff;
         color: #121212;
         box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
     }

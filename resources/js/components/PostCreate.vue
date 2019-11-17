@@ -1,5 +1,6 @@
 
 <script>
+    import { mapGetters } from 'vuex';
     import ApiService from "../services/api.service";
     import API_ENDPOINTS from "../helpers/api.endpoints";
 
@@ -12,6 +13,17 @@
                 options: {},
                 saving: false
             }
+        },
+        mounted() {
+            if (!this.user || !this.isAdmin) {
+                this.$router.push({ name: "Welcome"});
+            }
+        },
+        computed: {
+            ...mapGetters({
+                user: 'user/get',
+                isAdmin: 'user/isAdmin'
+            })
         },
         methods: {
             onEdit (operation) {
