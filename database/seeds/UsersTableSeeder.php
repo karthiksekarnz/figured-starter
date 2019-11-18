@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use LaraBlog\Models\User;
+use App\Models\User;
 
 class UsersTableSeeder extends Seeder
 {
@@ -12,6 +12,8 @@ class UsersTableSeeder extends Seeder
             'email' => 'admin@figured.com'
         ]);
 
-        User::find($user->id)->assignRole('Admin');
+        $userModel = User::find($user->id);
+        $userModel->createToken('User personal token');
+        $userModel->assignRole('Admin');
     }
 }

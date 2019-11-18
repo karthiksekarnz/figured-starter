@@ -10,6 +10,7 @@
         data() {
             return {
                 saving: false,
+                loggingOut: false,
                 loginForm: {
                     email: null,
                     password: null
@@ -45,9 +46,11 @@
 
             login() {
                 this.errors = null;
+                this.saving = true;
 
                 ApiService.post(API_ENDPOINTS.login, this.loginForm)
                     .then(response => {
+                        this.saving = false;
                         this.$bvModal.hide('loginModal');
 
                         let payload = response.data;
@@ -59,6 +62,7 @@
                         this.$router.push({name: 'PostsList'});
                     })
                     .catch(e => {
+                        this.saving = false;
                         let error = e.response.data;
                         this.errors = error.errors;
                     });
@@ -66,6 +70,7 @@
 
             signup() {
                 this.errors = null;
+                this.saving = true;
 
                 ApiService.post(API_ENDPOINTS.signup, this.signupForm)
                     .then(response => {
@@ -85,8 +90,11 @@
             },
 
             logout() {
+                this.loggingOut = true;
+
                 ApiService.post(API_ENDPOINTS.logout, {})
                     .then(response => {
+                        this.loggingOut = false;
                         this.reset();
                         this.$router.push({name: 'Welcome'})
                     })
@@ -114,7 +122,8 @@
                 <div v-if="isLoggedIn">
                     <router-link :to="{ name: 'PostsList'}" class="mr-5">Posts</router-link>
                     <span class="mr-2">{{ user.name }}</span>
-                    <b-button class="btn btn-primary" @click="logout">Logout</b-button>
+                    <b-button class="btn btn-primary" v-if="loggingOut" disabled>Bye...</b-button>
+                    <b-button class="btn btn-primary" @click="logout" v-else>Logout</b-button>
                 </div>
                 <div v-if="!isLoggedIn">
                     <b-button class="btn btn-primary" v-b-modal.loginModal :disabled="saving">Log In</b-button>
@@ -138,7 +147,8 @@
                             <b-form-input class="form-control" type="password" v-model="loginForm.password"></b-form-input>
                         </div>
                         <div class="form-group">
-                            <button class="btn btn-primary btn-block" type="submit" :disabled="saving">Login</button>
+                            <button class="btn btn-primary btn-block" v-if="saving" disabled>Logging in...</button>
+                            <button class="btn btn-primary btn-block" type="submit" v-else>Login</button>
                         </div>
                     </b-form>
                 </b-modal>
@@ -167,7 +177,8 @@
                             <b-form-input v-model="signupForm.password_confirmation" class="form-control" type="password"></b-form-input>
                         </div>
                         <div class="form-group">
-                            <button class="btn btn-primary btn-block" type="submit" :disabled="saving">Sign up</button>
+                            <button class="btn btn-primary btn-block" disabled v-if="saving">Signing up...</button>
+                            <button class="btn btn-primary btn-block" type="submit" v-else>Sign up</button>
                         </div>
                     </b-form>
                 </b-modal>
