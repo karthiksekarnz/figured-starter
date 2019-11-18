@@ -102,7 +102,7 @@
                     <div class="col-12 p-0 ">
                         <button type="button" class="btn btn-danger float-left mr-2" @click="onDelete($event)">Delete</button>
 
-                        <router-link :to="{ name: 'PostsList'}" class="btn btn-light float-right">Cancel</router-link>
+                        <router-link :to="{ name: 'PostsList'}" class="btn btn-light float-right">Close</router-link>
                         <button type="submit" class="btn btn-primary float-right mr-2">Save</button>
                     </div>
                 </div>

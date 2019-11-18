@@ -37,10 +37,12 @@
                 ApiService.post(API_ENDPOINTS.createPost, {
                     title: this.title,
                     content: this.content
-                }).then((response) => {
-                    let post = response.data.post;
+                }).then(() => {
                     this.saving = false;
-                    this.$router.push({ name: 'Post', params: { slug: post.slug}});
+
+                    Vue.$toast.success('Post created successfully!');
+
+                    this.$router.push({ name: 'PostsList'});
                 })
                 .catch(error => {
                     this.saving = false

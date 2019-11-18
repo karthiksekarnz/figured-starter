@@ -84,6 +84,7 @@
                         this.$router.push({name: 'PostsList'})
                     })
                     .catch(e => {
+                        this.saving = false;
                         let error = e.response.data;
                         this.errors = error.errors;
                     });
