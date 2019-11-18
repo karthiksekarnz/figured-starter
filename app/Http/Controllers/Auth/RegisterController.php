@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\User;
+use Illuminate\Http\Response;
+use Illuminate\Routing\ResponseFactory;
+use App\Http\Requests\Auth\UserRegisterRequest;
+use App\Services\Auth\AuthServiceContract;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Http\JsonResponse;
 
 class RegisterController extends Controller
 {
@@ -28,45 +30,52 @@ class RegisterController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/';
 
     /**
-     * Create a new controller instance.
-     *
-     * @return void
+     * @var AuthServiceContract
      */
-    public function __construct()
+    private $authService;
+
+    /**
+     * @var ResponseFactory
+     */
+    protected $response;
+
+    /**
+     * RegisterController constructor.
+     *
+     * @param ResponseFactory $response
+     * @param AuthServiceContract $authService
+     */
+    public function __construct(ResponseFactory $response, AuthServiceContract $authService )
     {
+        $this->response = $response;
+        $this->authService = $authService;
+
         $this->middleware('guest');
+
+        parent::__construct($response);
     }
 
     /**
-     * Get a validator for an incoming registration request.
-     *
-     * @param  array  $data
-     * @return \Illuminate\Contracts\Validation\Validator
+     * @param UserRegisterRequest $request
+     * @return JsonResponse
      */
-    protected function validator(array $data)
+    public function register(UserRegisterRequest $request)
     {
-        return Validator::make($data, [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
-    }
+        try {
+            $result = $this->authService->register([
+                'name' => $request->input('name'),
+                'email' => $request->input('email'),
+                'password' => bcrypt($request->input('password')),
+            ]);
 
-    /**
-     * Create a new user instance after a valid registration.
-     *
-     * @param  array  $data
-     * @return \App\User
-     */
-    protected function create(array $data)
-    {
-        return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-        ]);
+            return $this->response->json($result);
+        } catch (\Exception $e) {
+            return $this->response->json([
+                'error' => $e->getMessage()
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
     }
 }
