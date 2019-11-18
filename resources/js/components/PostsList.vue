@@ -5,16 +5,20 @@
         </div>
         <div v-else>
             <router-link :to="{ name: 'PostCreate'}" class="btn btn-primary" v-if="isAdmin">Create Post</router-link>
-            <ul v-if="posts">
-                <li class="post" v-for="post in posts">
-                    <router-link :to="{ name: 'Post', params: {slug: post.slug}}">
-                        <h3>{{ post.title }}</h3>
-                        <div class="pt-1">
-                            Read More
-                        </div>
-                    </router-link>
-                </li>
-            </ul>
+            <div v-if="posts">
+                <ul>
+                    <li class="post" v-for="post in posts">
+                        <router-link :to="{ name: 'Post', params: {slug: post.slug}}">
+                            <h4>{{ post.title }}</h4>
+                            <div class="pt-1">
+                                Read More
+                            </div>
+                        </router-link>
+                    </li>
+                </ul>
+                <b-pagination v-model="page.current_page" :total-rows="page.total" :per-page="page.per_page" @change="changePage($event)"></b-pagination>
+            </div>
+
             <div v-if="posts.length === 0" class="text-center p-5">
                 <h5>No posts yet.</h5>
                 <router-link :to="{ name: 'PostCreate'}" class="btn btn-primary">Create Post</router-link>
@@ -32,6 +36,7 @@
         name: "PostsList",
         data() {
             return {
+                page: {},
                 loading: false,
                 posts: []
             }
@@ -42,6 +47,7 @@
             ApiService.get(API_ENDPOINTS.posts)
                 .then(response => {
                     this.loading = false;
+                    this.page = response.data;
                     this.posts = response.data.data;
                 })
                 .catch(error => {
@@ -52,6 +58,21 @@
             ...mapGetters({
                 isAdmin: 'user/isAdmin'
             })
+        },
+        methods: {
+            changePage(page) {
+                this.loading = true;
+
+                ApiService.get(API_ENDPOINTS.posts+'?page='+page)
+                    .then(response => {
+                        this.loading = false;
+                        this.page = response.data;
+                        this.posts = response.data.data;
+                    })
+                    .catch(error => {
+                        this.loading = false;
+                    });
+            }
         }
     }
 </script>
