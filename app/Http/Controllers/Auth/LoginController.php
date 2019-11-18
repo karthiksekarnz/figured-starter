@@ -76,7 +76,7 @@ class LoginController extends Controller
 
         return $this->response->json([
             'errors' => [
-                'These credentials do not match our records.'
+                'credentials' => ['These credentials do not match our records.']
             ]
         ], Response::HTTP_UNPROCESSABLE_ENTITY);
     }

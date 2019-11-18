@@ -1,4 +1,5 @@
 <script>
+    import _ from 'lodash';
     import ApiService from "../services/api.service";
     import API_ENDPOINTS from "../helpers/api.endpoints";
     import { mapGetters, mapMutations } from 'vuex';
@@ -13,7 +14,7 @@
                     email: null,
                     password: null
                 },
-
+                errors: null,
                 signupForm: {
                     name: null,
                     email: null,
@@ -21,6 +22,12 @@
                     password_confirmation: null
                 }
             }
+        },
+
+        mounted() {
+            this.$root.$on('bv::modal::hide', () => {
+                this.errors = null
+            });
         },
 
         computed: {
@@ -37,36 +44,43 @@
             }),
 
             login() {
+                this.errors = null;
+
                 ApiService.post(API_ENDPOINTS.login, this.loginForm)
-                    .then(async response => {
+                    .then(response => {
                         this.$bvModal.hide('loginModal');
 
                         let payload = response.data;
                         TokenService.setAccessToken(payload.token.access_token);
-
+                        this.errors = null;
                         this.setUser(payload.user);
                         this.setLoggedIn(true);
 
                         this.$router.push({name: 'PostsList'});
                     })
-                    .catch(error => {
-                        console.log(error)
+                    .catch(e => {
+                        let error = e.response.data;
+                        this.errors = error.errors;
                     });
             },
 
             signup() {
+                this.errors = null;
+
                 ApiService.post(API_ENDPOINTS.signup, this.signupForm)
-                    .then(async response => {
+                    .then(response => {
                         this.$bvModal.hide('signupModal');
                         let payload = response.data;
                         TokenService.setAccessToken(payload.token.access_token);
+                        this.errors = null;
                         this.setUser(payload.user);
                         this.setLoggedIn(true);
 
-                        this.$router.push({name: 'PostsList'});
+                        this.$router.push({name: 'PostsList'})
                     })
-                    .catch(error => {
-                        console.log(error)
+                    .catch(e => {
+                        let error = e.response.data;
+                        this.errors = error.errors;
                     });
             },
 
@@ -109,6 +123,11 @@
 
 
                 <b-modal id="loginModal" title="Login" hide-footer>
+                    <div v-if="errors" class="error-feedback">
+                        <div v-for="error in errors">
+                            {{ error[0] }}
+                        </div>
+                    </div>
                     <b-form @submit.prevent="login">
                         <div class="form-group">
                             <label>Email</label>
@@ -125,6 +144,11 @@
                 </b-modal>
 
                 <b-modal id="signupModal" title="Sign up" hide-footer>
+                    <div v-if="errors" class="error-feedback">
+                        <div v-for="error in errors">
+                            {{ error[0] }}
+                        </div>
+                    </div>
                     <b-form @submit.prevent="signup">
                         <div class="form-group">
                             <label>Name</label>
