@@ -12,6 +12,7 @@
 .DS_STORE
 /vendor
 .env
+.env.testing
 .phpunit.result.cache
 .idea
 Homestead.json
